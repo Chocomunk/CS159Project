@@ -1,0 +1,16 @@
+{
+  "batchSz": 64,
+  "cuda": true,
+  "dataset": "mnist",
+  "model": "optnet-eq",
+  "nEpoch": 50,
+  "nHidden": 100,
+  "neq": 50,
+  "no_cuda": false,
+  "nparams": 84510,
+  "opt": "sgd",
+  "save": "work/mnist.optnet-eq.nHidden:100.neq:50",
+  "seed": 1,
+  "weightDecay": 0.0001,
+  "work": "work"
+}
