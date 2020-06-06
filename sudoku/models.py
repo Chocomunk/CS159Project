@@ -22,7 +22,7 @@ import cvxpy as cp
 
 from block import block
 
-from qpth.qp import SpQPFunction, QPFunction
+from qpth.qp import SpQPFunction, QPFunction, QPSolvers
 
 try:
     from osqpth.osqpth import OSQP, DiffModes
@@ -290,3 +290,73 @@ class OptNetLatent(nn.Module):
 #     Y = Variable(torch.DoubleTensor(np.array([[np.array(np.eye(5,4,-1)[i,:]) for i in row] for row in puzzle])).cuda())
 #     solution = sudoku(Y.unsqueeze(0))
 #     print(solution.view(1,4,4,4))
+
+class DynamicEq(nn.Module):
+    def __init__(self, n, Qpenalty, qp_solver, trueInit=False):
+        super().__init__()
+
+        self.qp_solver = qp_solver
+
+        nx = (n**2)**3
+        self.Q = Variable(Qpenalty*torch.eye(nx).double().cuda())
+        self.Q_idx = spa.csc_matrix(self.Q.detach().cpu().numpy()).nonzero()
+
+        self.G = Variable(-torch.eye(nx).double().cuda())
+        self.h = Variable(torch.zeros(nx).double().cuda())
+        t = get_sudoku_matrix(n)
+
+        if trueInit:
+            self.A = Parameter(torch.DoubleTensor(t).cuda())
+        else:
+            self.A = Parameter(torch.rand(t.shape).double().cuda())
+        self.log_z0 = Parameter(torch.zeros(nx).double().cuda())
+        # self.b = Variable(torch.ones(self.A.size(0)).double().cuda())
+
+        if self.qp_solver == 'osqpth':
+            t = torch.cat((self.A, self.G), dim=0)
+            self.AG_idx = spa.csc_matrix(t.detach().cpu().numpy()).nonzero()
+
+    # @profile
+    def forward(self, puzzles):
+        nBatch = puzzles.size(0)
+
+        p = -puzzles.view(nBatch, -1)
+        b = self.A.mv(self.log_z0.exp())
+
+        return QPFunction(verbose=-1, solver=QPSolvers.DYNAMIC)(
+                self.Q, p.double(), self.G, self.h, self.A, b
+            ).float().view_as(puzzles)
+
+
+class DynamicIneq(nn.Module):
+    def __init__(self, n, Qpenalty, nineq):
+        super().__init__()
+        nx = (n**2)**3
+        self.Q = Variable(Qpenalty*torch.eye(nx).double().cuda())
+        self.G1 = Variable(-torch.eye(nx).double().cuda())
+        self.h1 = Variable(torch.zeros(nx).double().cuda())
+        # if trueInit:
+        #     self.A = Parameter(torch.DoubleTensor(get_sudoku_matrix(n)).cuda())
+        # else:
+        #     # t = get_sudoku_matrix(n)
+        #     # self.A = Parameter(torch.rand(t.shape).double().cuda())
+        #     # import IPython, sys; IPython.embed(); sys.exit(-1)
+        self.A = Parameter(torch.rand(50,nx).double().cuda())
+        self.G2 = Parameter(torch.Tensor(128, nx).uniform_(-1,1).double().cuda())
+        self.z2 = Parameter(torch.zeros(nx).double().cuda())
+        self.s2 = Parameter(torch.ones(128).double().cuda())
+        # self.b = Variable(torch.ones(self.A.size(0)).double().cuda())
+
+    def forward(self, puzzles):
+        nBatch = puzzles.size(0)
+
+        p = -puzzles.view(nBatch,-1)
+
+        h2 = self.G2.mv(self.z2)+self.s2
+        G = torch.cat((self.G1, self.G2), 0)
+        h = torch.cat((self.h1, h2), 0)
+        e = Variable(torch.Tensor())
+
+        return QPFunction(verbose=False, solver=QPSolvers.DYNAMIC_INEQ)(
+            self.Q, p.double(), G, h, e, e
+        ).float().view_as(puzzles)
