@@ -19,11 +19,11 @@ class Lenet(nn.Module):
         self.nCls = nCls
 
         if proj == 'simproj':
-            self.Q = Variable(0.5*torch.eye(nCls).double().cuda())
-            self.G = Variable(-torch.eye(nCls).double().cuda())
-            self.h = Variable(-1e-5*torch.ones(nCls).double().cuda())
-            self.A = Variable((torch.ones(1, nCls)).double().cuda())
-            self.b = Variable(torch.Tensor([1.]).double().cuda())
+            self.Q = Variable(0.5*torch.eye(nCls).double())
+            self.G = Variable(-torch.eye(nCls).double())
+            self.h = Variable(-1e-5*torch.ones(nCls).double())
+            self.A = Variable((torch.ones(1, nCls)).double())
+            self.b = Variable(torch.Tensor([1.]).double())
             def projF(x):
                 nBatch = x.size(0)
                 Q = self.Q.unsqueeze(0).expand(nBatch, nCls, nCls)
@@ -59,11 +59,11 @@ class LenetOptNet(nn.Module):
         self.qp_s0 = nn.Linear(50*4*4, nineq)
 
         assert(neq==0)
-        self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda())
-        self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1).cuda())
-        # self.z0 = Parameter(torch.zeros(nHidden.cuda())
-        # self.s0 = Parameter(torch.ones(nineq.cuda())
+        self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)))
+        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)))
+        self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1))
+        # self.z0 = Parameter(torch.zeros(nHidden)
+        # self.s0 = Parameter(torch.ones(nineq)
 
         self.nHidden = nHidden
         self.nineq = nineq
@@ -78,7 +78,7 @@ class LenetOptNet(nn.Module):
         x = x.view(nBatch, -1)
 
         L = self.M*self.L
-        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nHidden)).cuda()
+        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nHidden))
         Q = Q.unsqueeze(0).expand(nBatch, self.nHidden, self.nHidden)
         G = self.G.unsqueeze(0).expand(nBatch, self.nineq, self.nHidden)
         z0 = self.qp_z0(x)
@@ -137,11 +137,11 @@ class OptNet(nn.Module):
         # self.qp_s0 = nn.Linear(nCls, nineq)
 
         assert(neq==0)
-        self.M = Variable(torch.tril(torch.ones(nCls, nCls)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda())
-        self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1).cuda())
-        self.z0 = Parameter(torch.zeros(nCls).cuda())
-        self.s0 = Parameter(torch.ones(nineq).cuda())
+        self.M = Variable(torch.tril(torch.ones(nCls, nCls)))
+        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)))
+        self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1))
+        self.z0 = Parameter(torch.zeros(nCls))
+        self.s0 = Parameter(torch.ones(nineq))
 
         self.nineq = nineq
         self.neq = neq
@@ -160,7 +160,7 @@ class OptNet(nn.Module):
             x = self.bn2(x)
 
         L = self.M*self.L
-        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nCls)).cuda()
+        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nCls))
         Q = Q.unsqueeze(0).expand(nBatch, self.nCls, self.nCls)
         G = self.G.unsqueeze(0).expand(nBatch, self.nineq, self.nCls)
         # z0 = self.qp_z0(x)
@@ -188,11 +188,11 @@ class OptNetEq(nn.Module):
         self.fc1 = nn.Linear(nFeatures, nHidden)
         self.fc2 = nn.Linear(nHidden, nCls)
 
-        self.Q = Variable(Qpenalty*torch.eye(nHidden).double().cuda())
-        self.G = Variable(-torch.eye(nHidden).double().cuda())
-        self.h = Variable(torch.zeros(nHidden).double().cuda())
-        self.A = Parameter(torch.rand(neq,nHidden).double().cuda())
-        self.b = Variable(torch.ones(self.A.size(0)).double().cuda())
+        self.Q = Variable(Qpenalty*torch.eye(nHidden).double())
+        self.G = Variable(-torch.eye(nHidden).double())
+        self.h = Variable(torch.zeros(nHidden).double())
+        self.A = Parameter(torch.rand(neq,nHidden).double())
+        self.b = Variable(torch.ones(self.A.size(0)).double())
 
         self.neq = neq
 
@@ -228,11 +228,11 @@ class LenetDynamic(nn.Module):
         self.qp_s0 = nn.Linear(50*4*4, nineq)
 
         assert(neq==0)
-        self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda())
-        self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1).cuda())
-        # self.z0 = Parameter(torch.zeros(nHidden.cuda())
-        # self.s0 = Parameter(torch.ones(nineq.cuda())
+        self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)))
+        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)))
+        self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1))
+        # self.z0 = Parameter(torch.zeros(nHidden)
+        # self.s0 = Parameter(torch.ones(nineq)
 
         self.nHidden = nHidden
         self.nineq = nineq
@@ -247,7 +247,7 @@ class LenetDynamic(nn.Module):
         x = x.view(nBatch, -1)
 
         L = self.M*self.L
-        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nHidden)).cuda()
+        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nHidden))
         Q = Q.unsqueeze(0).expand(nBatch, self.nHidden, self.nHidden)
         G = self.G.unsqueeze(0).expand(nBatch, self.nineq, self.nHidden)
         z0 = self.qp_z0(x)
@@ -276,15 +276,15 @@ class Dynamic(nn.Module):
         self.fc1 = nn.Linear(nFeatures, nHidden)
         self.fc2 = nn.Linear(nHidden, nCls)
 
-        # self.qp_z0 = nn.Linear(nCls, nCls)
-        # self.qp_s0 = nn.Linear(nCls, nineq)
+        # self.qp_z0 = n,Cls)
+        # self.qp_s0 = n,ineq)
 
         assert(neq==0)
-        self.M = Variable(torch.tril(torch.ones(nCls, nCls)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda())
-        self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1).cuda())
-        self.z0 = Parameter(torch.zeros(nCls).cuda())
-        self.s0 = Parameter(torch.ones(nineq).cuda())
+        self.M = Variable(torch.tril(torch.ones(nCls, nCls)))
+        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)))
+        self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1))
+        self.z0 = Parameter(torch.zeros(nCls))
+        self.s0 = Parameter(torch.ones(nineq))
 
         self.nineq = nineq
         self.neq = neq
@@ -303,7 +303,7 @@ class Dynamic(nn.Module):
             x = self.bn2(x)
 
         L = self.M*self.L
-        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nCls)).cuda()
+        Q = L.mm(L.t()) + self.eps*Variable(torch.eye(self.nCls))
         Q = Q.unsqueeze(0).expand(nBatch, self.nCls, self.nCls)
         G = self.G.unsqueeze(0).expand(nBatch, self.nineq, self.nCls)
         # z0 = self.qp_z0(x)
