@@ -60,7 +60,7 @@ class LenetOptNet(nn.Module):
 
         assert(neq==0)
         self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda()))
+        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda())
         self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1).cuda())
         # self.z0 = Parameter(torch.zeros(nHidden.cuda())
         # self.s0 = Parameter(torch.ones(nineq.cuda())
@@ -138,7 +138,7 @@ class OptNet(nn.Module):
 
         assert(neq==0)
         self.M = Variable(torch.tril(torch.ones(nCls, nCls)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda()))
+        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda())
         self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1).cuda())
         self.z0 = Parameter(torch.zeros(nCls).cuda())
         self.s0 = Parameter(torch.ones(nineq).cuda())
@@ -229,7 +229,7 @@ class LenetDynamic(nn.Module):
 
         assert(neq==0)
         self.M = Variable(torch.tril(torch.ones(nHidden, nHidden)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda()))
+        self.L = Parameter(torch.tril(torch.rand(nHidden, nHidden)).cuda())
         self.G = Parameter(torch.Tensor(nineq,nHidden).uniform_(-1,1).cuda())
         # self.z0 = Parameter(torch.zeros(nHidden.cuda())
         # self.s0 = Parameter(torch.ones(nineq.cuda())
@@ -281,7 +281,7 @@ class Dynamic(nn.Module):
 
         assert(neq==0)
         self.M = Variable(torch.tril(torch.ones(nCls, nCls)).cuda())
-        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda()))
+        self.L = Parameter(torch.tril(torch.rand(nCls, nCls)).cuda())
         self.G = Parameter(torch.Tensor(nineq,nCls).uniform_(-1,1).cuda())
         self.z0 = Parameter(torch.zeros(nCls).cuda())
         self.s0 = Parameter(torch.ones(nineq).cuda())
